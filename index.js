@@ -45,7 +45,9 @@ module.exports = function main(source) {
         });
         const fntName = loaderUtils.interpolateName(this, '[hash].fnt', { content: fnt });
         this.emitFile(fntName, fnt);
-        this.callback(null, `module.exports = __webpack_public_path__ + ${JSON.stringify(fntName)};`);
+        this.callback(null, 'module.exports = { ' +
+          `fnt: __webpack_public_path__ + ${JSON.stringify(fntName)}, ` +
+          `png: __webpack_public_path__ + ${JSON.stringify(pngName)} };`);
       }).catch(e => this.callback(e));
     }
   });

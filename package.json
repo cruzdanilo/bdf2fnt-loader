@@ -1,6 +1,6 @@
 {
   "name": "bdf2fnt-loader",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "module for loading bdf fonts as angelcode bmfont (.fnt) for webpack",
   "main": "index.js",
   "repository": "cruzdanilo/bdf2font-loader",
