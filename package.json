@@ -1,0 +1,40 @@
+{
+  "name": "bdf2fnt-loader",
+  "version": "0.1.0",
+  "description": "module for loading bdf fonts as angelcode bmfont (.fnt) for webpack",
+  "main": "index.js",
+  "repository": "cruzdanilo/bdf2font-loader",
+  "keywords": [
+    "font",
+    "bdf",
+    "fnt",
+    "angelcode",
+    "bmfont",
+    "webpack",
+    "loader"
+  ],
+  "author": {
+    "name": "danilo neves cruz",
+    "email": "cruzdanilo@gmail.com"
+  },
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/cruzdanilo/bdf2font-loader/issues"
+  },
+  "homepage": "https://github.com/cruzdanilo/bdf2font-loader#readme",
+  "dependencies": {
+    "bdfjs": "0.0.8",
+    "imagemin": "^5.3.1",
+    "imagemin-optipng": "^5.2.1",
+    "jimp": "^0.2.28",
+    "loader-utils": "^1.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.11.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
+  },
+  "eslintConfig": {
+    "extends": "airbnb-base"
+  }
+}
