@@ -49,3 +49,5 @@ module.exports = function loader(content) {
     }
   });
 };
+
+module.exports.raw = true;
