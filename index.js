@@ -4,13 +4,12 @@ const Jimp = require('jimp');
 const imagemin = require('imagemin');
 const optipng = require('imagemin-optipng');
 
-
 module.exports = function main(source) {
   const options = loaderUtils.getOptions(this) || {};
   const font = BDF.parse(source);
-  const charset = [...' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789'];
+  const charset = new Set([...(options.charset || ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789')]);
   const box = font.meta.boundingBox;
-  const side = 2 ** Math.ceil(Math.log2(Math.sqrt(charset.length * box.width * box.height)));
+  const side = 2 ** Math.ceil(Math.log2(Math.sqrt(charset.size * box.width * box.height)));
   const image = new Jimp(side, side);
   const chars = [];
   let x = 0;
