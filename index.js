@@ -4,9 +4,9 @@ const Jimp = require('jimp');
 const imagemin = require('imagemin');
 const optipng = require('imagemin-optipng');
 
-module.exports = function main(source) {
+module.exports = function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
-  const font = BDF.parse(source);
+  const font = BDF.parse(content);
   const charset = new Set([...(options.charset || ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789')]);
   const box = font.meta.boundingBox;
   const side = 2 ** Math.ceil(Math.log2(Math.sqrt(charset.size * box.width * box.height)));
