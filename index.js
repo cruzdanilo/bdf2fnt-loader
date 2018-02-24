@@ -39,13 +39,7 @@ module.exports = function loader(content) {
     }
     imagemin.buffer(buf, { use: [optipng()] }).then((png) => {
       const pngName = loaderUtils.interpolateName(this, '[hash].png', { content: png });
-      if (done.has(pngName)) {
-        this.callback(null);
-        return;
-      }
-      done.add(pngName);
       const outputPath = options.outputPath || '';
-      this.emitFile(path.posix.join(outputPath, pngName), png);
       let fnt = `common lineHeight=${box.height} base=${box.height} scaleW=${image.bitmap.width} scaleH=${image.bitmap.height} pages=1\n`;
       fnt += `page id=0 file="${pngName}"\n`;
       fnt += `chars count=${chars.length}\n`;
@@ -53,7 +47,11 @@ module.exports = function loader(content) {
         fnt += `char id=${char.id} x=${char.x} y=${char.y} width=${box.width} height=${box.height} xoffset=0 yoffset=0 xadvance=${box.width} page=0 \n`;
       });
       const fntName = path.posix.join(outputPath, loaderUtils.interpolateName(this, '[hash].fnt', { content: fnt }));
-      this.emitFile(fntName, fnt);
+      if (!done.has(pngName)) {
+        done.add(pngName);
+        this.emitFile(path.posix.join(outputPath, pngName), png);
+        this.emitFile(fntName, fnt);
+      }
       this.callback(null, `module.exports = __webpack_public_path__ + ${JSON.stringify(fntName)};`);
     }).catch(e => this.callback(e));
   });
