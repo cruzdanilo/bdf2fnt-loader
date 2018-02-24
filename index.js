@@ -5,6 +5,8 @@ const Jimp = require('jimp');
 const imagemin = require('imagemin');
 const optipng = require('imagemin-optipng');
 
+const done = new Set();
+
 module.exports = function loader(content) {
   const options = loaderUtils.getOptions(this) || {};
   const font = BDF.parse(content);
@@ -37,11 +39,11 @@ module.exports = function loader(content) {
     }
     imagemin.buffer(buf, { use: [optipng()] }).then((png) => {
       const pngName = loaderUtils.interpolateName(this, '[hash].png', { content: png });
-      if (pngName === this.lastName) {
+      if (done.has(pngName)) {
         this.callback(null);
         return;
       }
-      this.lastName = pngName;
+      done.add(pngName);
       const outputPath = options.outputPath || '';
       this.emitFile(path.posix.join(outputPath, pngName), png);
       let fnt = `common lineHeight=${box.height} base=${box.height} scaleW=${image.bitmap.width} scaleH=${image.bitmap.height} pages=1\n`;
