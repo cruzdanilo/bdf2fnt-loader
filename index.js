@@ -38,7 +38,7 @@ module.exports = function loader(content) {
       return;
     }
     imagemin.buffer(buf, { use: [optipng()] }).then((png) => {
-      const pngName = loaderUtils.interpolateName(this, '[hash].png', { content: png });
+      const pngName = loaderUtils.interpolateName(this, '[name].[hash:6].png', { content: png });
       const outputPath = options.outputPath || '';
       let fnt = `common lineHeight=${box.height} base=${box.height} scaleW=${image.bitmap.width} scaleH=${image.bitmap.height} pages=1\n`;
       fnt += `page id=0 file="${pngName}"\n`;
@@ -46,7 +46,7 @@ module.exports = function loader(content) {
       chars.forEach((char) => {
         fnt += `char id=${char.id} x=${char.x} y=${char.y} width=${box.width} height=${box.height} xoffset=0 yoffset=0 xadvance=${box.width} page=0 \n`;
       });
-      const fntName = path.posix.join(outputPath, loaderUtils.interpolateName(this, '[hash].fnt', { content: fnt }));
+      const fntName = path.posix.join(outputPath, loaderUtils.interpolateName(this, '[name].[hash:6].fnt', { content: fnt }));
       if (!done.has(pngName)) {
         done.add(pngName);
         this.emitFile(path.posix.join(outputPath, pngName), png);
