@@ -52,7 +52,7 @@ module.exports = function loader(content) {
         this.emitFile(path.posix.join(outputPath, pngName), png);
         this.emitFile(fntName, fnt);
       }
-      this.callback(null, `module.exports = __webpack_public_path__ + ${JSON.stringify(fntName)};`);
+      this.callback(null, `export default __webpack_public_path__ + ${JSON.stringify(fntName)};`);
     }).catch(e => this.callback(e));
   });
 };
