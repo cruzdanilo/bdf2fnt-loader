@@ -42,29 +42,13 @@ module.exports = async function loader(content) {
   const textureName = loaderUtils.interpolateName(this, options.name || '[name].[hash:8].png', { content: texture });
   const fontData = chars.reduce(
     (xml, char) => {
-      xml.ele('char', {
-        id: char.id,
-        x: char.x,
-        y: char.y,
-        width: charWidth,
-        height: charHeight,
-        xoffset: 0,
-        yoffset: 0,
-        xadvance: charWidth,
-        page: 0,
-      });
+      xml.ele('char', { id: char.id, x: char.x, y: char.y, width: charWidth, height: charHeight, xoffset: 0, yoffset: 0, xadvance: charWidth, page: 0 }); // eslint-disable-line object-curly-newline
       return xml;
     },
     xmlbuilder.create('font')
       .ele('info', { face: font.meta.name, size: font.meta.size.points })
       .up()
-      .ele('common', {
-        lineHeight: charHeight,
-        base: charHeight + charY,
-        scaleW: width,
-        scaleH: height,
-        pages: 1,
-      })
+      .ele('common', { lineHeight: charHeight, base: charHeight + charY, scaleW: width, scaleH: height, pages: 1 }) // eslint-disable-line object-curly-newline
       .up()
       .ele('pages')
       .ele('page', { id: 0, file: textureName })
