@@ -4,12 +4,14 @@ const BDF = require('bdfjs');
 const imagemin = require('imagemin');
 const optipng = require('imagemin-optipng');
 const sharp = require('sharp');
+const xmlbuilder = require('xmlbuilder');
 
 const done = new Set();
 
 module.exports = async function loader(content) {
   this.async();
   const options = loaderUtils.getOptions(this) || {};
+  const outputPath = options.outputPath || path.posix.relative(this.rootContext, this.context);
   const font = BDF.parse(content);
   const charset = new Set([...(options.charset || ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789')]);
   const { width: charWidth, height: charHeight, y: charY } = font.meta.boundingBox;
@@ -33,25 +35,51 @@ module.exports = async function loader(content) {
       pixels.fill(0xff, offset, offset + channels);
     }));
   });
-  const png = await imagemin.buffer(
+  const texture = await imagemin.buffer(
     await sharp(pixels, { raw: { width, height, channels } }).png().toBuffer(),
     { use: [optipng()] },
   );
-  const pngName = loaderUtils.interpolateName(this, options.name || '[name].[hash:8].png', { content: png });
-  const outputPath = options.outputPath || path.posix.relative(this.rootContext, this.context);
-  let fnt = `common lineHeight=${charHeight} base=${charHeight + charY} scaleW=${width} scaleH=${height} pages=1\n`;
-  fnt += `page id=0 file="${pngName}"\n`;
-  fnt += `chars count=${chars.length}\n`;
-  chars.forEach((char) => {
-    fnt += `char id=${char.id} x=${char.x} y=${char.y} width=${charWidth} height=${charHeight} xoffset=0 yoffset=0 xadvance=${charWidth} page=0 \n`;
-  });
-  const fntName = path.posix.join(outputPath, loaderUtils.interpolateName(this, '[name].[hash:8].fnt', { content: fnt }));
-  if (!done.has(pngName)) {
-    done.add(pngName);
-    this.emitFile(path.posix.join(outputPath, pngName), png);
-    this.emitFile(fntName, fnt);
+  const textureName = loaderUtils.interpolateName(this, options.name || '[name].[hash:8].png', { content: texture });
+  const fontData = chars.reduce(
+    (xml, char) => {
+      xml.ele('char', {
+        id: char.id,
+        x: char.x,
+        y: char.y,
+        width: charWidth,
+        height: charHeight,
+        xoffset: 0,
+        yoffset: 0,
+        xadvance: charWidth,
+        page: 0,
+      });
+      return xml;
+    },
+    xmlbuilder.create('font')
+      .ele('info', { face: font.meta.name, size: font.meta.size.points })
+      .up()
+      .ele('common', {
+        lineHeight: charHeight,
+        base: charHeight + charY,
+        scaleW: width,
+        scaleH: height,
+        pages: 1,
+      })
+      .up()
+      .ele('pages')
+      .ele('page', { id: 0, file: textureName })
+      .up()
+      .up()
+      .ele('chars', { count: chars.length }),
+  ).end({ pretty: true });
+  const texturePath = path.posix.join(outputPath, textureName);
+  const fontDataPath = path.posix.join(outputPath, loaderUtils.interpolateName(this, '[name].[hash:8].xml', { content: fontData }));
+  if (!done.has(textureName)) {
+    done.add(textureName);
+    this.emitFile(texturePath, texture);
+    this.emitFile(fontDataPath, fontData);
   }
-  this.callback(null, `export default __webpack_public_path__ + ${JSON.stringify(fntName)};`);
+  this.callback(null, `export default { texture: __webpack_public_path__ + ${JSON.stringify(texturePath)}, fontData: __webpack_public_path__ + ${JSON.stringify(fontDataPath)} };`);
 };
 
 module.exports.raw = true;
