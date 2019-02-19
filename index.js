@@ -38,7 +38,7 @@ module.exports = async function loader(content) {
     { use: [optipng()] },
   );
   const pngName = loaderUtils.interpolateName(this, options.name || '[name].[hash:8].png', { content: png });
-  const outputPath = options.outputPath || '';
+  const outputPath = options.outputPath || path.posix.relative(this.rootContext, this.context);
   let fnt = `common lineHeight=${charHeight} base=${charHeight + charY} scaleW=${width} scaleH=${height} pages=1\n`;
   fnt += `page id=0 file="${pngName}"\n`;
   fnt += `chars count=${chars.length}\n`;
