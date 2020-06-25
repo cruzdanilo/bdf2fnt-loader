@@ -25,16 +25,15 @@
   "homepage": "https://github.com/cruzdanilo/bdf2fnt-loader#readme",
   "dependencies": {
     "bdfjs": "0.0.8",
-    "imagemin": "^7.0.1",
     "imagemin-optipng": "^8.0.0",
     "loader-utils": "^2.0.0",
-    "sharp": "^0.25.3",
-    "xmlbuilder": "^15.1.1"
+    "sharp": "^0.25.4",
+    "xmlbuilder2": "^2.1.5"
   },
   "devDependencies": {
-    "eslint": "^7.2.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.21.1"
+    "eslint": "^7.3.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.21.2"
   },
   "eslintConfig": {
     "extends": "airbnb-base"
