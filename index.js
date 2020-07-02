@@ -1,28 +1,30 @@
-const { join, parse: parsePath, relative } = require('path').posix;
+const { basename, parse: parsePath } = require('path').posix;
 const { getOptions, interpolateName } = require('loader-utils');
 const { create } = require('xmlbuilder2');
 const { parse } = require('bdfjs');
 const optipng = require('imagemin-optipng')();
 const sharp = require('sharp');
 
-const build = async (content, context) => {
+const extRegex = /\.bdf(?!.*\.bdf)/;
+
+const build = async (content, self) => {
   const {
     webp = true,
     prettyPrint = false,
     name = '[name].[contenthash:8].[ext]',
-    outputPath = relative(context.rootContext, context.context),
+    context = self.rootContext,
     charset: charsetString = ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789',
-  } = getOptions(context) || {};
-  const { resourcePath } = context;
+  } = getOptions(self) || {};
+  const { resourcePath } = self;
 
+  const charset = new Set([...charsetString]);
+  const channels = 4;
+  const chars = [];
   const font = parse(content);
   const { width: charWidth, height: charHeight, y: charY } = font.meta.boundingBox;
   const width = 2 ** Math.ceil(Math.log2(Math.sqrt(charset.size * charWidth * charHeight)));
   const columns = Math.floor(width / charWidth);
   const height = Math.ceil(charset.size / columns) * charHeight;
-  const channels = 4;
-  const charset = new Set([...charsetString]);
-  const chars = [];
   const pixels = Buffer.alloc(width * height * channels);
   [...charset].forEach((char, i) => {
     const glyph = font.glyphs[char.charCodeAt()];
@@ -47,10 +49,9 @@ const build = async (content, context) => {
     ] : [],
   ].map(async ([ext, optimizer, pipeline]) => {
     const data = await optimizer(await pipeline.toBuffer());
-    const filepath = join(outputPath, interpolateName({
-      ...context, resourcePath: resourcePath.replace(/\.bdf(?!.*\.bdf)/, ext),
-    }, name, { content: data }));
-    context.emitFile(filepath, data);
+    const filepath = interpolateName({ ...self, resourcePath: resourcePath.replace(extRegex, ext) },
+      name, { context, content: data });
+    self.emitFile(filepath, data);
     return filepath;
   }));
 
@@ -65,15 +66,14 @@ const build = async (content, context) => {
       .ele('common', { lineHeight: height, base: height, scaleW: width, scaleH: height, pages: 1 }) // eslint-disable-line object-curly-newline
       .up()
       .ele('pages')
-      .ele('page', { id: 0, file: relative(outputPath, textures[0]) })
+      .ele('page', { id: 0, file: basename(textures[0]) })
       .up()
       .up()
       .ele('chars', { count: chars.length }),
   ).end({ prettyPrint });
-  const fontData = join(outputPath, interpolateName({
-    ...context, resourcePath: resourcePath.replace(/\.bdf(?!.*\.bdf)/, '.xml'),
-  }, name, { content: fontDataBuffer }));
-  context.emitFile(fontData, fontDataBuffer);
+  const fontData = interpolateName({ ...self, resourcePath: resourcePath.replace(extRegex, '.xml') },
+    name, { context, content: fontDataBuffer });
+  self.emitFile(fontData, fontDataBuffer);
   return { fontData, textures };
 };
 
