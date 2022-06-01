@@ -27,7 +27,7 @@
     "bdfjs": "0.0.8",
     "imagemin-optipng": "^8.0.0",
     "loader-utils": "^2.0.0",
-    "sharp": "^0.25.4",
+    "sharp": "^0.30.5",
     "xmlbuilder2": "^2.1.6"
   },
   "devDependencies": {
